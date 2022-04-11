@@ -36,8 +36,9 @@ namespace WindowsFormsApp1
             while (true)
             {
                 byte[] B = U.Receive(ref EP); //訊息到達時讀取到B陣列
-                string A = Encoding.Default.GetString(B);   //翻譯C陣列到字串A
-                string[] Q = A.Split('/');//切割座標點資訊
+                string A = Encoding.Default.GetString(B); //翻譯C陣列到字串A
+                string[] Z = A.Split('_');
+                string[] Q = Z[1].Split('/');//切割座標點資訊
                 Point[] R = new Point[Q.Length];//宣告座標陣列
                 for (int i = 0; i < Q.Length; i++)
                 {
@@ -50,6 +51,21 @@ namespace WindowsFormsApp1
                     LineShape L = new LineShape(); //建立線段物件
                     L.StartPoint = R[i];    //線段起點
                     L.EndPoint = R[i + 1];  //線段終點
+                    switch (Z[0])
+                    {
+                        case "1":
+                            L.BorderColor = Color.Red;
+                            break;
+                        case "2":
+                            L.BorderColor = Color.Green;
+                            break;
+                        case "3":
+                            L.BorderColor = Color.Blue;
+                            break;
+                        case "4":
+                            L.BorderColor = Color.Black;
+                            break;
+                    }
                     L.Parent = D;   //線段L加入畫布D
                 }
             }
@@ -100,12 +116,30 @@ namespace WindowsFormsApp1
                 stP = e.Location;
                 p += "/" + stP.X.ToString() + "," + stP.Y.ToString();
             }
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                LineShape L = new LineShape();
+                L.StartPoint = stP;
+                L.EndPoint = e.Location;
+                if (radioButton1.Checked) { L.BorderColor = Color.Red; }
+                if (radioButton2.Checked) { L.BorderColor = Color.Green; }
+                if (radioButton3.Checked) { L.BorderColor = Color.Blue; }
+                if (radioButton4.Checked) { L.BorderColor = Color.Black; }
+                L.Parent = C;
+                stP = e.Location;
+                p += "/" + stP.X.ToString() + "," + stP.Y.ToString();
+            }
         }
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
             int Port = int.Parse(textBox2.Text);
             UdpClient S = new UdpClient(textBox1.Text, Port);
+           
+            if (radioButton1.Checked) { p = "1_" + p; }
+            if (radioButton2.Checked) { p = "2_" + p; }
+            if (radioButton3.Checked) { p = "3_" + p; }
+            if (radioButton4.Checked) { p = "4_" + p; }
             byte[] B = Encoding.Default.GetBytes(p);
             S.Send(B, B.Length);
             S.Close();
